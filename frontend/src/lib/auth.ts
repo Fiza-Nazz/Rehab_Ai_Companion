@@ -14,11 +14,14 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
         try {
-          const res = await fetch("http://127.0.0.1:8000/api/auth/login", {
+          const res = await fetch(`${apiUrl}/api/auth/login`, {
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
+              "ngrok-skip-browser-warning": "true",
             },
             body: new URLSearchParams({
               username: credentials.email,
@@ -29,9 +32,10 @@ export const authOptions: NextAuthOptions = {
           const data = await res.json();
 
           if (res.ok && data.access_token) {
-            const userRes = await fetch("http://127.0.0.1:8000/api/auth/me", {
+            const userRes = await fetch(`${apiUrl}/api/auth/me`, {
               headers: {
                 Authorization: `Bearer ${data.access_token}`,
+                "ngrok-skip-browser-warning": "true",
               },
             });
 
