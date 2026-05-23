@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import api from "@/lib/api";
@@ -433,10 +434,14 @@ function SectionDivider({ label, count }: { label: string; count: number }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function AlertsPage() {
+  const { data: session, status } = useSession();
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [sending, setSending] = useState<string | null>(null);
 
   useEffect(() => {
+    if (status === "loading") return;
+    if (status === "unauthenticated" || !session?.accessToken) return;
+
     const fetchAlerts = async () => {
       try {
         const { data } = await api.get("/api/alerts/");
@@ -456,7 +461,7 @@ export default function AlertsPage() {
       }
     };
     fetchAlerts();
-  }, []);
+  }, [session, status]);
 
   const [customEmail, setCustomEmail] = useState("Fizanaazz321@gmail.com");
   const [customPhone, setCustomPhone] = useState("923123632197");

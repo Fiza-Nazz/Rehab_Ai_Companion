@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to inject the JWT token
+// Request interceptor — JWT token inject karo
 api.interceptors.request.use(
   async (config) => {
     const session = await getSession();
@@ -17,10 +17,23 @@ api.interceptors.request.use(
     if (session?.accessToken) {
       // @ts-ignore
       config.headers.Authorization = `Bearer ${session.accessToken}`;
+    } else {
+      console.warn('[API] No accessToken found in session — request will be unauthenticated.');
     }
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor — 401 ko clearly log karo
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      console.error('[API] 401 Unauthorized — Token missing ya expire ho gaya. Backend URL:', error.config?.url);
+    }
     return Promise.reject(error);
   }
 );

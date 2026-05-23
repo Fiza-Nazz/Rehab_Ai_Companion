@@ -521,14 +521,42 @@ export default function ExercisesPage() {
   /* ── Empty ── */
   if (!planData) {
     return (
-      <div className="ex-center" style={{ fontFamily: "'DM Sans',sans-serif", background: "#E8F1FB" }}>
+      <div className="ex-center" style={{ fontFamily: "'DM Sans',sans-serif", background: "#E8F1FB", display: "flex", flexDirection: "column", gap: 10, alignItems: "center", justifyContent: "center", minHeight: "100vh" }}>
         <span style={{ fontSize: 48 }}>🏥</span>
-        <h2 style={{ fontFamily: "'DM Serif Display',serif", fontSize: 26, color: "#0B1D3A" }}>
+        <h2 style={{ fontFamily: "'DM Serif Display',serif", fontSize: 26, color: "#0B1D3A", margin: 0 }}>
           No Active Plan Found
         </h2>
-        <p style={{ color: "#5A7190", fontSize: 14 }}>
-          Please complete your daily check-in to generate today's exercise plan.
+        <p style={{ color: "#5A7190", fontSize: 14, marginBottom: 20 }}>
+          Please complete your daily check-in to generate today's exercise plan. If you already checked in, click Generate below.
         </p>
+        <button
+          onClick={async () => {
+            setLoading(true);
+            try {
+              await api.post("/api/exercises/generate");
+              const res = await api.get("/api/exercises/current");
+              setPlanData(res.data);
+              toast.success("Plan generated successfully!");
+            } catch (err) {
+              toast.error("Failed to generate plan. Please try again.");
+            } finally {
+              setLoading(false);
+            }
+          }}
+          style={{
+            padding: "12px 24px",
+            background: "#0B1D3A",
+            color: "white",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 500,
+            fontSize: 14
+          }}
+        >
+          Generate Plan Now
+        </button>
       </div>
     );
   }

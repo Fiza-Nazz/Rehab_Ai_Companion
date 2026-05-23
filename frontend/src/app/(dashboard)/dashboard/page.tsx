@@ -399,13 +399,22 @@ function MedicalCanvas() {
 
 // ─── Main Dashboard Page ──────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [summary, setSummary] = useState<Summary>({ avg_pain: 0, avg_mobility: 0, streak: 0 });
   const [forecast, setForecast] = useState<Forecast | null>(null);
   const [hasCheckedIn, setHasCheckedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Session abhi load ho rahi hai — wait karo
+    if (status === "loading") return;
+
+    // Session nahi hai (unauthenticated) — fetch mat karo
+    if (status === "unauthenticated" || !session?.accessToken) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [sumRes, forecastRes, checkinRes] = await Promise.all([
@@ -423,7 +432,7 @@ export default function DashboardPage() {
       }
     };
     fetchData();
-  }, []);
+  }, [session, status]); // ← session aur status dono dependency mein
 
   const prob = forecast?.setback_probability ?? 0;
   const riskLabel = prob > 0.5 ? "High Risk" : prob > 0.2 ? "Moderate" : "Low Risk";
