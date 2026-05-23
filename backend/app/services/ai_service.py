@@ -45,11 +45,8 @@ CRITICAL RULES:
     user_content = f"Patient Profile: {json.dumps(patient_profile)}\nCheckin Data (last 14 days): {json.dumps(checkin_data)}\nCurrent setback probability: {setback_probability}"
 
     models_to_try = [
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3.1-8b-instruct:free",
-        "qwen/qwen-2.5-72b-instruct:free",
-        "google/gemma-2-9b-it:free"
+        "openrouter/free",
+        "google/gemini-2.0-flash-lite-preview-02-05:free"
     ]
 
     last_exception = None
@@ -68,13 +65,13 @@ CRITICAL RULES:
             if not response or not hasattr(response, 'choices') or not response.choices:
                 raise ValueError(f"Invalid response from OpenRouter ({model_name})")
                 
-            result = response.choices[0].message.content
+            result = response.choices[0].message.content.strip()
             
-            result = result.strip()
-            if result.startswith("```json"):
-                result = result[7:-3].strip()
-            elif result.startswith("```"):
-                result = result[3:-3].strip()
+            # Extract JSON block robustly
+            start = result.find('{')
+            end = result.rfind('}')
+            if start != -1 and end != -1:
+                result = result[start:end+1]
                 
             return json.loads(result)
             
