@@ -98,21 +98,24 @@ Write in a calm, objective medical tone. Do not use conversational preambles. Re
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/trigger-critical")
-async def trigger_critical_alert(data: TriggerInput):
+async def trigger_critical_alert(
+    data: TriggerInput,
+    current_user: User = Depends(get_current_user)
+):
     """Real time trigger for email and WhatsApp alerts during manual testing."""
     try:
         # Build structured messages
         email_body = format_email_alert(
             alert_type=data.alert_type,
-            patient_name="Ahmed Khalid",
-            patient_id="PT-2024-0847",
+            patient_name=current_user.full_name,
+            patient_id=f"PT-{str(current_user.id)[:8].upper()}",
             detail=data.message,
             action="Review patient data immediately."
         )
         whatsapp_body = format_whatsapp_alert(
             alert_type=data.alert_type,
-            patient_name="Ahmed Khalid",
-            patient_id="PT-2024-0847",
+            patient_name=current_user.full_name,
+            patient_id=f"PT-{str(current_user.id)[:8].upper()}",
             detail=data.message,
             action="Review patient data immediately."
         )

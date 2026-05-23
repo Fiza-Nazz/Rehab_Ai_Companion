@@ -6,7 +6,7 @@
 // No hallucination — only verified Three.js r128 APIs used
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import type { Mesh, Vector3 } from "three";
 
@@ -763,6 +763,36 @@ export default function DashboardLayout({
         }
         .btn-signup:hover .btn-signup-arrow { transform: translateX(3px) scale(1.1); }
 
+        /* Logout — elegant red outlined */
+        .btn-logout {
+          display: inline-flex; align-items: center; gap: 7px;
+          font-family: var(--ff-body); font-size: 13px; font-weight: 600;
+          letter-spacing: 0.3px; color: #ef4444;
+          background: transparent;
+          border: 1.5px solid #ef4444;
+          border-radius: 6px;
+          padding: 8px 20px;
+          cursor: pointer; text-decoration: none;
+          position: relative; overflow: hidden;
+          transition: color 0.3s, background 0.3s, box-shadow 0.3s, transform 0.2s;
+        }
+        .btn-logout::before {
+          content: '';
+          position: absolute; inset: 0;
+          background: #ef4444;
+          transform: translateX(-101%);
+          transition: transform 0.32s cubic-bezier(0.76,0,0.24,1);
+          z-index: 0;
+        }
+        .btn-logout:hover::before { transform: translateX(0); }
+        .btn-logout > * { position: relative; z-index: 1; }
+        .btn-logout:hover {
+          color: #fff;
+          box-shadow: 0 8px 28px rgba(239,68,68,0.32), 0 2px 8px rgba(239,68,68,0.16);
+          transform: translateY(-2px);
+        }
+        .btn-logout:active { transform: translateY(0) scale(0.98); }
+
         /* Auth buttons group in topbar */
         .auth-btns {
           display: flex; align-items: center; gap: 8px;
@@ -892,6 +922,9 @@ export default function DashboardLayout({
                   <span>Register</span>
                   <span className="btn-signup-arrow">→</span>
                 </Link>
+                <button onClick={() => signOut({ callbackUrl: '/login' })} className="btn-logout topbar-auth-btn">
+                  <span>Logout</span>
+                </button>
               </div>
 
             </div>
